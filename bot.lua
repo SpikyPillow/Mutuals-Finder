@@ -2,13 +2,14 @@
   Todo list of jazz (roughly in order of when i want to do it):
   
   Code
-    Add !#help --1.3
-    Finish -f, -s, and -l in !#mutuals. --1.4
+    !#mutuals
+      Finish -f -- 1.4
+      Finish -s and -l -- 1.5
+  fin
 
   Not Code:
     Make Bot Icon.
     Advertise the bot a little.
-
 ]]
 
 local discordia = require('discordia')
@@ -19,7 +20,7 @@ local client = discordia.Client {
 }
 local uv = require "uv"
 
-local botVersion = "1.2a"
+local botVersion = "1.3a"
 local ruirr = "175060396627984384"
 local timeoutList = {}
 local pingList = {}
@@ -29,7 +30,7 @@ client:run("Bot " .. require "token") -- token.lua on client only
 
 client:on("ready", function()
   print(string.format("Logged in as %s\n", client.user.username))
-  client:setGame("!#mutuals -h")
+  client:setGame("!#mutuals -h or !#help")
 end)
 
 -- Call for message recieved
@@ -37,14 +38,15 @@ client:on("messageCreate", function(message)
   local ping = false
   local str = message.content:lower()
 
-  --Ping? Recieved
-  if message.author.id == client.user.id and message.content == "Ping?" then  
+  if str:find("!#source") == 1 then
+    message.channel:send("Source can be found at: https://github.com/SpikyPillow/Mutuals-Finder.")
+  elseif str:find("!#help") == 1 then
+    message.channel:send(require "help")
+  elseif message.author.id == client.user.id and message.content == "Ping?" then  
     ping = true -- add to "queue"
     queuedPong[message.id] = message.channel
-  end
-  
-  -- !#ping Command!
-  if str:find("!#ping") == 1 then
+  elseif str:find("!#ping") == 1 then
+    -- !#ping Command!
     ping = true
     local args = {}
     if str:match("-h") then
@@ -227,9 +229,9 @@ client:on("messageCreate", function(message)
 
         print "Job Done!\n"
         local a = uv.now()
-        message.channel:send(string.format("Information Sent! Operation completed in: %.3f seconds (%d ms).", (a-x)/1000, (a-x)))
+        message.channel:send(string.format("Information Sent! Operation completed in: %.2f seconds (%d ms).", (a-x)/1000, (a-x)))
       else
-        message.channel:send(string.format("Usage Limited to every 30 seconds. %.3fs remaining.", (timeoutList[user]-uv.now())/1000))
+        message.channel:send(string.format("Usage Limited to every 30 seconds. %.1fs remaining.", (timeoutList[user]-uv.now())/1000))
       end
     end
   end
