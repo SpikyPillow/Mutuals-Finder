@@ -2,8 +2,6 @@
   Todo list of jazz (roughly in order of when i want to do it):
   
   Code
-    Success? - Get github to exist, i guess --1.1.
-    Change a coupse things to prefer string.format, for ease of reading? idk, i like it, okay? --1.2
     Add !#help --1.3
     Finish -f, -s, and -l in !#mutuals. --1.4
 
@@ -15,20 +13,17 @@
 
 local discordia = require('discordia')
 local client = discordia.Client {
-	logFile = 'mybot.log',
+	logFile = 'bot.log',
   cacheAllMembers = true,
   syncGuilds = true,
 }
 local uv = require "uv"
 
-local botVersion = "1.1a"
+local botVersion = "1.2a"
+local ruirr = "175060396627984384"
 local timeoutList = {}
 local pingList = {}
 local queuedPong = {}
-
-function sleep(n)
-  os.execute("sleep " .. tonumber(n))
-end
 
 client:run("Bot " .. require "token") -- token.lua on client only
 
@@ -37,13 +32,13 @@ client:on("ready", function()
   client:setGame("!#mutuals -h")
 end)
 
--- Big beefy bit of it
+-- Call for message recieved
 client:on("messageCreate", function(message)
   local ping = false
   local str = message.content:lower()
 
   --Ping? Recieved
-  if message.author.id == "586676341349285888" and message.content == "Ping?" then  
+  if message.author.id == client.user.id and message.content == "Ping?" then  
     ping = true -- add to "queue"
     queuedPong[message.id] = message.channel
   end
@@ -73,8 +68,9 @@ client:on("messageCreate", function(message)
     end
   end
 
+  -- !#mutuals Command!
   if str:find("!#mutuals ") == 1 or str == "!#mutuals" then
-    if (str:match("-h")) then
+    if str:match("-h") then
       message.channel:send(require "desc")
     else
       local args = {}
@@ -101,7 +97,7 @@ client:on("messageCreate", function(message)
       local x = uv.now()
       local check = true
       for i,v in pairs(timeoutList) do
-        if i == user then
+        if i == user and user ~= ruirr then
           if v > x then
             check = false
           else
@@ -113,17 +109,15 @@ client:on("messageCreate", function(message)
       if check then
         message.channel:send("Packing up information, you'll be messaged shortly!")
         
-        print ("Job starting for: " .. message.author.tag .. " (" .. message.author.id .. ").")
-        if user ~= "586676341349285888" then
-          timeoutList[user] = x+30000
-        end
+        print (string.format("Job starting for %s (%s).", message.author.tag, message.author.id))
+        timeoutList[user] = x+30000
 
         x = uv.now()
         for i,v in pairs(message.author.mutualGuilds) do --for every user guild
           if args.key == 2 then
             formatted[v] = {}
             for a,b in pairs (v.members) do -- for every member in user guild
-              if a ~= user and a ~= "586676341349285888" then
+              if a ~= user and a ~= client.user.id then
                 formatted[v][#formatted[v] + 1] = a
                 if count[a] then
                   count[a] = count[a] + 1
@@ -141,7 +135,7 @@ client:on("messageCreate", function(message)
                 end
               end
   
-              if a ~= user and a ~= "586676341349285888" and check then
+              if a ~= user and a ~= client.user.id and check then
                 for c,d in pairs(b.mutualGuilds) do
                   for e,f in pairs(message.author.mutualGuilds) do                
                     if e == c then
@@ -179,10 +173,12 @@ client:on("messageCreate", function(message)
           end
         end
 
-        local default = (args.key) and "Custom" or "Default"
+        local def = (args.key) and "Custom" or "Default"
+        local sco = "Global"
         local key = (args.key) and "Guild [MinGuilds:" .. (args.count or 2) .. "]" or "Person"
+        local fil = ">1"
         local ser = (message.guild and message.guild.id) or "nil"
-        local msg = "**Formatting: " .. default .. " (Scope: Global, Key: " .. key .. ", Filter: >1 values. Server: " .. ser .. ")**\n"
+        local msg = string.format("**Formatting: %s (Scope: %s, Key: %s, Filter: %s values. Server: %s)**\n", def, sco, key, fil, ser)
         local line = ""
         for i,v in pairs (formatted) do
           if #v > 1 then
@@ -229,11 +225,11 @@ client:on("messageCreate", function(message)
         end
         message.author:send(msg)
 
-        print "Job Done!"
+        print "Job Done!\n"
         local a = uv.now()
-        message.channel:send("Information Sent! Operation completed in: " .. (a-x)/1000 .. " seconds (" .. (a-x) .. " ms).")
+        message.channel:send(string.format("Information Sent! Operation completed in: %.3f seconds (%d ms).", (a-x)/1000, (a-x)))
       else
-        message.channel:send("Usage limited to every 30 seconds. " .. (timeoutList[user]-uv.now())/1000 .. "s remaining.")
+        message.channel:send(string.format("Usage Limited to every 30 seconds. %.3fs remaining.", (timeoutList[user]-uv.now())/1000))
       end
     end
   end
