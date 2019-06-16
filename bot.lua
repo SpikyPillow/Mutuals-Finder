@@ -30,7 +30,7 @@ function sleep(n)
   os.execute("sleep " .. tonumber(n))
 end
 
-client:run("Bot " .. require "token")
+client:run("Bot " .. require "token") -- token.lua on client only
 
 client:on("ready", function()
   print(string.format("Logged in as %s\n", client.user.username))
