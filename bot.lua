@@ -2,7 +2,7 @@
   Todo list of jazz (roughly in order of when i want to do it):
   
   Code
-    Get github to exist, i guess --1.1
+    Success? - Get github to exist, i guess --1.1.
     Change a coupse things to prefer string.format, for ease of reading? idk, i like it, okay? --1.2
     Add !#help --1.3
     Finish -f, -s, and -l in !#mutuals. --1.4
@@ -21,7 +21,7 @@ local client = discordia.Client {
 }
 local uv = require "uv"
 
-local botVersion = "1.0a"
+local botVersion = "1.1a"
 local timeoutList = {}
 local pingList = {}
 local queuedPong = {}
