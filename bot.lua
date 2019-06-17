@@ -1,5 +1,5 @@
 --[[
-  Todo list of jazz (roughly in order of to do it):
+  Todo list of jazz (roughly in order):
   
   Code
     !#mutuals
@@ -19,7 +19,7 @@ local client = discordia.Client {
 }
 local uv = require "uv"
 
-local botVersion = "1.4c"
+local botVersion = "1.4d"
 local ruirr = "175060396627984384"
 local timeoutList = {}
 local pingList = {}
@@ -39,7 +39,8 @@ client:on("messageCreate", function(message)
   if str:find("!#source") == 1 then
     message.channel:send("Source can be found at: https://github.com/SpikyPillow/Mutuals-Finder.")
   elseif str:find("!#help") == 1 then
-    message.channel:send(require "help")
+    local help = require "help"
+    message.channel:send(string.format(help, botVersion))
   elseif message.author.id == client.user.id and message.content == "Ping?" then  
     ping = true -- add to "queue"
     queuedPong[message.id] = message.channel
