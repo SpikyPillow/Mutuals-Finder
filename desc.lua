@@ -6,16 +6,16 @@ All arguments are optional, can be placed in any order, and are not case sensiti
 
 *Global scope searches every server Mutuals Finder is in and returns your mutual members between servers.
 Server scope searches for mutual members shared specifically with the server the command is executed on.
-      Server can be specified with -l(server id) if you're using direct messages / a different server.
+      Server can be specified with -l(ServerID) if you're using direct messages / a different server.
 Key option changes key of the presented message. Key1 - Mutuals: Guild, Guild, ... | Key2 - Guild: Mutual, Mutuals, ... 
       -c(Num) defines minimum of how many guilds you have to share with a member for them to display, key 2 only.
 Filter specifies how many values there has to be per key to display it to you. May be specified twice.
 Whitelist and Blacklist filters what users may be shown. You may have any amount of users specied, seperated between commas.
 If additional support needed, message %s.*
 **Arguments:**
-``-h`` Displays this menu (Hello!). Overrides other arguments.
+``-h`` Sends this menu to the user (Hello!). Overrides other arguments.
 ``-s(2)`` Scope option. 1: Global, 2: Server | Default 1. //not yet implemented
-``-l(ServerId)`` Overwrite server usage location. For server scope. //not yet implemented
+``-l(ServerID)`` Overwrite server usage location. For server scope. //not yet implemented
 ``-k(2)`` Key option. 1: Person. 2: Guilds. | Default 1
 ``-c(Num)`` Minimum count option, k(2) only. Num can be any number 0 and above. | Default 2
 ``-f(>Num)`` Filter option. Num can be any number 0 and above | Default >1

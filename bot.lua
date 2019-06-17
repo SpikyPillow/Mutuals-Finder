@@ -3,6 +3,7 @@
   
   Code
     !#mutuals
+      Make it so that instead of sending another message it edits the first one once !#mutuals is complete
       Finish -s and -l -- 1.5
       Finish -bl and -wl -- 1.6
 
@@ -19,7 +20,7 @@ local client = discordia.Client {
 }
 local uv = require "uv"
 
-local botVersion = "1.4d"
+local botVersion = "1.4e"
 local ruirr = "175060396627984384"
 local timeoutList = {}
 local pingList = {}
@@ -73,7 +74,8 @@ client:on("messageCreate", function(message)
   if str:find("!#mutuals ") == 1 or str == "!#mutuals" then
     if str:match("-h") then
       local desc = require "desc"
-      message.channel:send(string.format(desc, client:getUser("175060396627984384").tag))
+      message.channel:send("Messaging you the help info!")
+      message.author:send(string.format(desc, client:getUser("175060396627984384").tag))
     else
       local args = {}
         if str:match("-k%(2%)") then
