@@ -1,11 +1,10 @@
 --[[
-  Todo list of jazz (roughly in order of when i want to do it):
+  Todo list of jazz (roughly in order of to do it):
   
   Code
     !#mutuals
-      Finish -f -- 1.4
       Finish -s and -l -- 1.5
-  fin
+      Finish -bl and -wl -- 1.6
 
   Not Code:
     Make Bot Icon.
@@ -20,7 +19,7 @@ local client = discordia.Client {
 }
 local uv = require "uv"
 
-local botVersion = "1.3a"
+local botVersion = "1.4a"
 local ruirr = "175060396627984384"
 local timeoutList = {}
 local pingList = {}
@@ -73,13 +72,14 @@ client:on("messageCreate", function(message)
   -- !#mutuals Command!
   if str:find("!#mutuals ") == 1 or str == "!#mutuals" then
     if str:match("-h") then
-      message.channel:send(require "desc")
+      local desc = require "desc"
+      message.channel:send(string.format(desc, client:getUser("175060396627984384").tag))
     else
       local args = {}
         if str:match("-k%(2%)") then
           args.key = 2
           if str:find("-c%(") then
-            local a,b = str:lower():find("-c%(")
+            local a,b = str:find("-c%(")
             local s = str:sub(b)
             local c = s:find(")")
             local s = s:sub(2, c-1)
@@ -91,6 +91,32 @@ client:on("messageCreate", function(message)
           if args.count == nil then
             args.count = 2
           end
+        end
+        -- -f
+        args.filter = {}
+        if str:find("-f%(>") then
+          local _,b = str:find("-f%(>")
+          local s = str:sub(b)
+          local c = s:find(")")
+          local s = s:sub(2, c-1)
+          
+          print (s)
+          args.filter[1] = tonumber(s)
+        end
+        if str:find("-f%(<") then
+          local _,b = str:find("-f%(<")
+          local s = str:sub(b)
+          local c = s:find(")")
+          local s = s:sub(2, c-1)
+          
+          print (s)
+          args.filter[2] = tonumber(s)
+        end
+        if args.filter[1] == nil or args.filter[1] < 0 then
+          args.filter[1] = 1
+        end
+        if args.filter[2] == nil or args.filter[2] < 0 then
+          args.filter[2] = 10000
         end
       local user = message.author.id
       local formatted = {}
@@ -175,15 +201,15 @@ client:on("messageCreate", function(message)
           end
         end
 
-        local def = (args.key) and "Custom" or "Default"
+        local def = (args.key or args.filter[1] or args.filter[2]) and "Custom" or "Default"
         local sco = "Global"
         local key = (args.key) and "Guild [MinGuilds:" .. (args.count or 2) .. "]" or "Person"
-        local fil = ">1"
+        local fil = ">" .. args.filter[1] .. ",<" .. args.filter[2]
         local ser = (message.guild and message.guild.id) or "nil"
         local msg = string.format("**Formatting: %s (Scope: %s, Key: %s, Filter: %s values. Server: %s)**\n", def, sco, key, fil, ser)
         local line = ""
         for i,v in pairs (formatted) do
-          if #v > 1 then
+          if #v > args.filter[1] and #v < args.filter[2] then
             if args.key == 2 then 
               line = "``" .. i.name .. "``: "
             else
