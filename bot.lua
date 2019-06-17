@@ -20,7 +20,7 @@ local client = discordia.Client {
 }
 local uv = require "uv"
 
-local botVersion = "1.4e"
+local botVersion = "1.4f"
 local ruirr = "175060396627984384"
 local timeoutList = {}
 local pingList = {}
@@ -41,7 +41,8 @@ client:on("messageCreate", function(message)
     message.channel:send("Source can be found at: https://github.com/SpikyPillow/Mutuals-Finder.")
   elseif str:find("!#help") == 1 then
     local help = require "help"
-    message.channel:send(string.format(help, botVersion))
+    message.channel:send("Messaging you the help info!")
+    message.author:send(string.format(help, botVersion))
   elseif message.author.id == client.user.id and message.content == "Ping?" then  
     ping = true -- add to "queue"
     queuedPong[message.id] = message.channel
