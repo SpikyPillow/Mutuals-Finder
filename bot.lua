@@ -19,7 +19,7 @@ local client = discordia.Client {
 }
 local uv = require "uv"
 
-local botVersion = "1.4b"
+local botVersion = "1.4c"
 local ruirr = "175060396627984384"
 local timeoutList = {}
 local pingList = {}
@@ -32,7 +32,6 @@ client:on("ready", function()
   client:setGame("!#mutuals -h or !#help")
 end)
 
--- Call for message recieved
 client:on("messageCreate", function(message)
   local ping = false
   local str = message.content:lower()
@@ -92,7 +91,6 @@ client:on("messageCreate", function(message)
             args.count = 2
           end
         end
-        -- -f
         args.filter = {}
         if str:find("-f%(>") then
           local _,b = str:find("-f%(>")
@@ -100,7 +98,6 @@ client:on("messageCreate", function(message)
           local c = s:find(")")
           local s = s:sub(2, c-1)
           
-          print (s)
           args.filter[1] = tonumber(s)
         end
         if str:find("-f%(<") then
@@ -109,7 +106,6 @@ client:on("messageCreate", function(message)
           local c = s:find(")")
           local s = s:sub(2, c-1)
           
-          print (s)
           args.filter[2] = tonumber(s)
         end
         if args.filter[1] == nil or args.filter[1] < 0 then
@@ -201,7 +197,7 @@ client:on("messageCreate", function(message)
           end
         end
 
-        local def = (args.key or args.filter[1] or args.filter[2]) and "Custom" or "Default"
+        local def = (args.key or args.filter[1] or args.filter[1] ~= 1 or args.filter[2] or args.filter[2] ~= 10000 ) and "Custom" or "Default"
         local sco = "Global"
         local key = (args.key) and "Guild [MinGuilds:" .. (args.count or 2) .. "]" or "Person"
         local fil = ">" .. args.filter[1] .. ",<" .. args.filter[2]
