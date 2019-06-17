@@ -3,7 +3,6 @@
   
   Code
     !#mutuals
-      Make it so that instead of sending another message it edits the first one once !#mutuals is complete
       Finish -s and -l -- 1.5
       Finish -bl and -wl -- 1.6
 
@@ -135,7 +134,7 @@ client:on("messageCreate", function(message)
       end
       
       if check then
-        message.channel:send("Packing up information, you'll be messaged shortly!")
+        local initMsg = message.channel:send("Packing up information, you'll be messaged shortly!")
         
         print (string.format("Job starting for %s (%s).", message.author.tag, message.author.id))
         timeoutList[user] = x+30000
@@ -255,7 +254,7 @@ client:on("messageCreate", function(message)
 
         print "Job Done!\n"
         local a = uv.now()
-        message.channel:send(string.format("Information Sent! Operation completed in: %.2f seconds (%d ms).", (a-x)/1000, (a-x)))
+        initMsg:setContent(string.format("Information Sent! Operation completed in: %.2f seconds (%d ms).", (a-x)/1000, (a-x)))
       else
         message.channel:send(string.format("Usage Limited to every 30 seconds. %.1fs remaining.", (timeoutList[user]-uv.now())/1000))
       end
