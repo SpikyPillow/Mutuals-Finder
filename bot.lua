@@ -21,7 +21,7 @@ local client = discordia.Client {
 }
 local uv = require "uv"
 
-local botVersion = "1.5b"
+local botVersion = "1.5c"
 local ruirr = "175060396627984384"
 local timeoutList = {}
 local pingList = {}

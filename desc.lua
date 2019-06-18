@@ -14,8 +14,8 @@ Whitelist and Blacklist filters what users may be shown. You may have any amount
 If additional support needed, message %s.*
 **Arguments:**
 ``-h`` Sends this menu to the user (Hello!). Overrides other arguments.
-``-s(2)`` Scope option. 1: Global, 2: Server | Default 1. //not yet implemented
-``-l(ServerID)`` Overwrite server usage location. For server scope. //not yet implemented
+``-s(2)`` Scope option. 1: Global, 2: Server | Default 1
+``-l(ServerID)`` Overwrite server usage location. For server scope.
 ``-k(2)`` Key option. 1: Person. 2: Guilds. | Default 1
 ``-c(Num)`` Minimum count option, k(2) only. Num can be any number 0 and above. | Default 2
 ``-f(>Num)`` Filter option. Num can be any number 0 and above | Default >1
