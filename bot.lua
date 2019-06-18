@@ -21,7 +21,7 @@ local client = discordia.Client {
 }
 local uv = require "uv"
 
-local botVersion = "1.5a"
+local botVersion = "1.5b"
 local ruirr = "175060396627984384"
 local timeoutList = {}
 local pingList = {}
@@ -191,7 +191,6 @@ client:on("messageCreate", function(message)
             end
           else
             for a,b in pairs(v.members) do
-              print "per member:"
               local check = true --already in list check
               for u,_ in pairs(formatted) do
                 if u == a then
@@ -200,9 +199,7 @@ client:on("messageCreate", function(message)
               end
               local wl = false --server scope check
               if args.scope and args.server then
-                print "scope!"
                 for c,d in pairs(scopeWL) do
-                  print ("per pair in scope!", c, d, "", a)
                   if a == d then
                     wl = true
                   end
