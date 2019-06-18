@@ -3,7 +3,9 @@
   
   Code
     !#mutuals
-      Finish -s and -l -- 1.5
+      Make it so that it yells at you do if you do whacky stuff
+      Make it so if gulid key has no values it doesnt show up, its a little unsighly
+      check for if guilds are "huge" ?
       Finish -bl and -wl -- 1.6
 
   Not Code:
@@ -19,7 +21,7 @@ local client = discordia.Client {
 }
 local uv = require "uv"
 
-local botVersion = "1.4f"
+local botVersion = "1.5a"
 local ruirr = "175060396627984384"
 local timeoutList = {}
 local pingList = {}
@@ -78,19 +80,17 @@ client:on("messageCreate", function(message)
       message.author:send(string.format(desc, client:getUser("175060396627984384").tag))
     else
       local args = {}
+        args.server = message.guild and message.guild.id
         if str:match("-k%(2%)") then
-          args.key = 2
+          args.key = true
           if str:find("-c%(") then
             local a,b = str:find("-c%(")
             local s = str:sub(b)
             local c = s:find(")")
             local s = s:sub(2, c-1)
             args.count = tonumber(s)
-            if args.count < 0 then
-              args.count = 2
-            end
           end
-          if args.count == nil then
+          if args.count == nil or args.count < 0 then
             args.count = 2
           end
         end
@@ -117,6 +117,23 @@ client:on("messageCreate", function(message)
         if args.filter[2] == nil or args.filter[2] < 0 then
           args.filter[2] = 10000
         end
+        if str:find("-s%(2%)") then
+          args.scope = true
+          args.server = message.guild and message.guild.id
+        end
+        if str:find("-l%(") then
+          local _,b = str:find("-l%(")
+          local s = str:sub(b)
+          local c = s:find(")")
+          local s = s:sub(2, c-1)
+          
+          if tonumber(s) then
+            args.server = s
+          end
+        end
+        if args.server == nil then
+          args.scope = nil
+        end
       local user = message.author.id
       local formatted = {}
       local count = {}
@@ -140,11 +157,30 @@ client:on("messageCreate", function(message)
         timeoutList[user] = x+30000
 
         x = uv.now()
+
+        local scopeWL = {}
+        if args.scope and args.server then
+          for i,v in pairs(client:getGuild(args.server).members) do
+            scopeWL[#scopeWL+1] = i
+          end
+        end
+
         for i,v in pairs(message.author.mutualGuilds) do --for every user guild
-          if args.key == 2 then
+          if args.key then
             formatted[v] = {}
             for a,b in pairs (v.members) do -- for every member in user guild
-              if a ~= user and a ~= client.user.id then
+              local wl = false --server scope check
+              if args.scope and args.server then
+                for c,d in pairs(scopeWL) do
+                  if a == d then
+                    wl = true
+                  end
+                end
+              else
+                wl = true
+              end 
+
+              if a ~= user and a ~= client.user.id and wl then
                 formatted[v][#formatted[v] + 1] = a
                 if count[a] then
                   count[a] = count[a] + 1
@@ -155,14 +191,27 @@ client:on("messageCreate", function(message)
             end
           else
             for a,b in pairs(v.members) do
-              local check = true
+              print "per member:"
+              local check = true --already in list check
               for u,_ in pairs(formatted) do
                 if u == a then
                   check = false
                 end
               end
+              local wl = false --server scope check
+              if args.scope and args.server then
+                print "scope!"
+                for c,d in pairs(scopeWL) do
+                  print ("per pair in scope!", c, d, "", a)
+                  if a == d then
+                    wl = true
+                  end
+                end
+              else
+                wl = true
+              end 
   
-              if a ~= user and a ~= client.user.id and check then
+              if a ~= user and a ~= client.user.id and check and wl then
                 for c,d in pairs(b.mutualGuilds) do
                   for e,f in pairs(message.author.mutualGuilds) do                
                     if e == c then
@@ -177,14 +226,12 @@ client:on("messageCreate", function(message)
             end
           end
         end
-        -- print ("\n\n\n")
 
-        if args.key == 2 then
+        if args.key then
           for i,v in pairs(formatted) do
             print (i.name)
             local s = "Mutual Members: "
             for a,b in ipairs(v) do
-              --print (a,b)
               s = s .. client:getUser(b).tag .. " || " 
             end
             print(s)
@@ -200,23 +247,24 @@ client:on("messageCreate", function(message)
           end
         end
 
-        local def = (args.key or args.filter[1] or args.filter[1] ~= 1 or args.filter[2] or args.filter[2] ~= 10000 ) and "Custom" or "Default"
-        local sco = "Global"
-        local key = (args.key) and "Guild [MinGuilds:" .. (args.count or 2) .. "]" or "Person"
+        local def = (args.key or args.scope or (args.filter[1] and args.filter[1]) ~= 1 or (args.filter[2] and args.filter[2]) ~= 10000) and "Custom" or "Default"
+        local sco = args.scope and "Server" or "Global"
+        local key = args.key and "Guild [MinGuilds:" .. (args.count or 2) .. "]" or "Person"
         local fil = ">" .. args.filter[1] .. ",<" .. args.filter[2]
-        local ser = (message.guild and message.guild.id) or "nil"
-        local msg = string.format("**Formatting: %s (Scope: %s, Key: %s, Filter: %s values. Server: %s)**\n", def, sco, key, fil, ser)
+        local ser = args.server or "nil"
+        local msg = string.format("**Formatting: %s (Scope: %s, Key: %s, Filter: %s values, Server: %s)**\n", def, sco, key, fil, ser)
+
         local line = ""
         for i,v in pairs (formatted) do
           if #v > args.filter[1] and #v < args.filter[2] then
-            if args.key == 2 then 
+            if args.key then 
               line = "``" .. i.name .. "``: "
             else
               line = "``" .. client:getUser(i).tag .. "``: "
             end
             for _,u in pairs(v) do
               local chunk = ""
-              if args.key == 2 then
+              if args.key then
                 if count[u] >= args.count then
                   chunk = chunk .. client:getUser(u).tag
                 end
