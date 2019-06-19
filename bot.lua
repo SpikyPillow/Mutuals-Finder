@@ -3,14 +3,14 @@
   
   Code
     !#mutuals
-      Make it so that it yells at you do if you do whacky stuff
-      Make it so if gulid key has no values it doesnt show up, its a little unsighly
-      check for if guilds are "huge" ?
       Finish -bl and -wl -- 1.6
+      Make it so that it yells at you if you do whacky bad argument stuff. trim white space next
+      Make it so if gulid key has no values it doesnt show up, its a little unsighly
+      check for if guilds are "large" ?
 
   Not Code:
-    Make Bot Icon.
     Advertise the bot a little.
+      how do you advertise a discord bot
 ]]
 
 local discordia = require('discordia')
@@ -21,11 +21,22 @@ local client = discordia.Client {
 }
 local uv = require "uv"
 
-local botVersion = "1.5c"
+local botVersion = "1.6a"
 local ruirr = "175060396627984384"
 local timeoutList = {}
 local pingList = {}
 local queuedPong = {}
+
+function split(inputstr, sep)
+  if sep == nil then
+    sep = "%s"
+  end
+  local t = {}
+  for str in string.gmatch(inputstr, "([^"..sep.."]+)") do
+    table.insert(t, str)
+  end
+  return t
+end
 
 client:run("Bot " .. require "token") -- token.lua on client only
 
@@ -134,6 +145,32 @@ client:on("messageCreate", function(message)
         if args.server == nil then
           args.scope = nil
         end
+        if str:find("-wl%(") then
+          local _,b = str:find("-wl%(")
+          local s = str:sub(b)
+          local c = s:find(")")
+          local s = s:sub(2, c-1)
+
+          args.whitelist = split(s, ",") 
+          for i,v in pairs (args.whitelist) do
+            if tonumber(v) == nil then
+              args.whitelist[i] = nil
+            end
+          end
+        elseif str:find("-bl%(") then
+          local _,b = str:find("-bl%(")
+          local s = str:sub(b)
+          local c = s:find(")")
+          local s = s:sub(2, c-1)
+
+          args.blacklist = split(s, ",") 
+          for i,v in pairs (args.blacklist) do
+            if tonumber(v) == nil then
+              args.blacklist[i] = nil
+            end
+          end
+        end
+
       local user = message.author.id
       local formatted = {}
       local count = {}
@@ -159,63 +196,92 @@ client:on("messageCreate", function(message)
         x = uv.now()
 
         local scopeWL = {}
-        if args.scope and args.server then
-          for i,v in pairs(client:getGuild(args.server).members) do
+        local g = client:getGuild(args.server)
+        if args.scope and args.server and g then
+          for i,v in pairs(g.members) do
             scopeWL[#scopeWL+1] = i
           end
         end
 
         for i,v in pairs(message.author.mutualGuilds) do --for every user guild
-          if args.key then
-            formatted[v] = {}
-            for a,b in pairs (v.members) do -- for every member in user guild
-              local wl = false --server scope check
-              if args.scope and args.server then
-                for c,d in pairs(scopeWL) do
-                  if a == d then
-                    wl = true
-                  end
-                end
-              else
-                wl = true
-              end 
-
-              if a ~= user and a ~= client.user.id and wl then
-                formatted[v][#formatted[v] + 1] = a
-                if count[a] then
-                  count[a] = count[a] + 1
-                else
-                  count[a] = 1
-                end
+          local check = true -- check for whitelist / blacklist
+          if args.whitelist then
+            check = false
+            for a,b in pairs(args.whitelist) do
+              if i == b then
+                check = true
               end
             end
-          else
-            for a,b in pairs(v.members) do
-              local check = true --already in list check
-              for u,_ in pairs(formatted) do
-                if u == a then
-                  check = false
-                end
+          elseif args.blacklist then
+            for a,b in pairs(args.blacklist) do
+              if i == b then
+                check = false
               end
-              local wl = false --server scope check
-              if args.scope and args.server then
-                for c,d in pairs(scopeWL) do
-                  if a == d then
-                    wl = true
+            end
+          end
+
+          if check then
+            if args.key then
+              formatted[v] = {}
+              for a,b in pairs (v.members) do -- for every member in user guild
+                local wl = false --server scope check
+                if args.scope and args.server and g then
+                  for c,d in pairs(scopeWL) do
+                    if a == d then
+                      wl = true
+                    end
+                  end
+                else
+                  wl = true
+                end 
+
+                if a ~= user and a ~= client.user.id and wl then
+                  formatted[v][#formatted[v] + 1] = a
+                  if count[a] then
+                    count[a] = count[a] + 1
+                  else
+                    count[a] = 1
                   end
                 end
-              else
-                wl = true
-              end 
-  
-              if a ~= user and a ~= client.user.id and check and wl then
-                for c,d in pairs(b.mutualGuilds) do
-                  for e,f in pairs(message.author.mutualGuilds) do                
-                    if e == c then
-                      if formatted[a] == nil then
-                        formatted[a] = {}
+              end
+            else
+              for a,b in pairs(v.members) do
+                local check = true --already in list check
+                for u,_ in pairs(formatted) do
+                  if u == a then
+                    check = false
+                  end
+                end
+                local wl = false --server scope check
+                if args.scope and args.server and g then
+                  for c,d in pairs(scopeWL) do
+                    if a == d then
+                      wl = true
+                    end
+                  end
+                else
+                  wl = true
+                end 
+    
+                if a ~= user and a ~= client.user.id and check and wl then
+                  for c,d in pairs(b.mutualGuilds) do
+                    local bl = true -- if in blacklist
+                    if args.blacklist then
+                      for _,z in pairs(args.blacklist) do
+                        if c == z then
+                          bl = false
+                        end
                       end
-                      formatted[a][#formatted[a] + 1] = f
+                    end
+                    if bl then
+                      for e,f in pairs(message.author.mutualGuilds) do                
+                        if e == c then
+                          if formatted[a] == nil then
+                            formatted[a] = {}
+                          end
+                          formatted[a][#formatted[a] + 1] = f
+                        end
+                      end
                     end
                   end
                 end
@@ -224,32 +290,33 @@ client:on("messageCreate", function(message)
           end
         end
 
-        if args.key then
-          for i,v in pairs(formatted) do
-            print (i.name)
-            local s = "Mutual Members: "
-            for a,b in ipairs(v) do
-              s = s .. client:getUser(b).tag .. " || " 
-            end
-            print(s)
-          end
-        else
-          for i,v in pairs(formatted) do
-            print (client:getUser(i).tag)
-            local s = "Mutual Guilds: "
-            for _,u in pairs(v) do
-              s = s .. u.name .. " || "
-            end
-            print(s)
-          end
-        end
+        -- if args.key then
+        --   for i,v in pairs(formatted) do
+        --     print (i.name)
+        --     local s = "Mutual Members: "
+        --     for a,b in ipairs(v) do
+        --       s = s .. client:getUser(b).tag .. " || " 
+        --     end
+        --     print(s)
+        --   end
+        -- else
+        --   for i,v in pairs(formatted) do
+        --     print (client:getUser(i).tag)
+        --     local s = "Mutual Guilds: "
+        --     for _,u in pairs(v) do
+        --       s = s .. u.name .. " || "
+        --     end
+        --     print(s)
+        --   end
+        -- end
 
-        local def = (args.key or args.scope or (args.filter[1] and args.filter[1]) ~= 1 or (args.filter[2] and args.filter[2]) ~= 10000) and "Custom" or "Default"
+        local def = (args.key or args.scope or (args.filter[1] and args.filter[1]) ~= 1 or (args.filter[2] and args.filter[2]) ~= 10000 or args.whitelist or args.blacklist) and "Custom" or "Default"
         local sco = args.scope and "Server" or "Global"
         local key = args.key and "Guild [MinGuilds:" .. (args.count or 2) .. "]" or "Person"
         local fil = ">" .. args.filter[1] .. ",<" .. args.filter[2]
         local ser = args.server or "nil"
-        local msg = string.format("**Formatting: %s (Scope: %s, Key: %s, Filter: %s values, Server: %s)**\n", def, sco, key, fil, ser)
+        local lis = ((args.whitelist and "wl") or (args.blacklist and "bl")) or "nil"
+        local msg = string.format("**Formatting: %s (Scope: %s, Key: %s, Filter: %s values, Server: %s, wl/bl: %s)**\n", def, sco, key, fil, ser, lis)
 
         local line = ""
         for i,v in pairs (formatted) do
