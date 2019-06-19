@@ -3,7 +3,7 @@
   
   Code
     !#mutuals
-      Finish -bl and -wl -- 1.6
+      add whitelist and blacklist for users too
       Make it so that it yells at you if you do whacky bad argument stuff. trim white space next
       Make it so if gulid key has no values it doesnt show up, its a little unsighly
       check for if guilds are "large" ?
@@ -21,7 +21,7 @@ local client = discordia.Client {
 }
 local uv = require "uv"
 
-local botVersion = "1.6a"
+local botVersion = "1.6b"
 local ruirr = "175060396627984384"
 local timeoutList = {}
 local pingList = {}

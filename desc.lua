@@ -20,6 +20,6 @@ If additional support needed, message %s.*
 ``-c(Num)`` Minimum count option, k(2) only. Num can be any number 0 and above. | Default 2
 ``-f(>Num)`` Filter option. Num can be any number 0 and above | Default >1
 ``-f(<Num)`` Filter option. Num can be any number 0 and above | Default <10000
-``-wl(UserID,...)`` Whitelist option. Only shows specified users. Overrides blacklist. //not yet implemented
-``-bl(UserID,...)`` Blacklist option. Filters out specified users. //not yet implemented
+``-wl(UserID,...)`` Whitelist option. Only shows specified users. Overrides blacklist.
+``-bl(UserID,...)`` Blacklist option. Filters out specified users.
 ]]
